@@ -179,6 +179,12 @@ public class RAst {
         return repeat(expr, 1, UNBOUND);
     }
 
+    public static RAst backreference(char group) {
+        Set<Character> c = new HashSet<>();
+        c.add(group);
+        return new RAst(RAstType.BACKREF, c);
+    }
+
     public static RAst posLookahead(RAst expr) {
         return new RAst(RAstType.POS_LOOKAHEAD, singletonList(expr));
     }

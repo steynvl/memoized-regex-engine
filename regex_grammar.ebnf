@@ -10,11 +10,13 @@ repetition ::= term ('*' | '+' | '?' | repetitionMinMax)*
 
 repetitionMinMax ::= '{' INTEGER (',' INTEGER)? '}'
 
-term ::= '^' | '$' | '.' | CHAR | group | '(?=' regex ')' | '(?!' regex ')' | '(' regex ')'
+term ::= '^' | '$' | '.' | CHAR | group | backreference | '(?=' regex ')' | '(?!' regex ')' | '(' regex ')'
 
 group ::= '[' '^'? (characterRange | CHAR)+ ']'
 
 characterRange ::= CHAR '-' CHAR
+
+backreference ::= '\' ('1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9')
 
 <?TOKENS?>
 

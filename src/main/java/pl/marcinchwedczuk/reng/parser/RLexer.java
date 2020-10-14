@@ -13,6 +13,7 @@ public class RLexer {
     }
 
     public List<RToken> split() {
+        int numGroups = 0;
         List<RToken> tokens = new ArrayList<>();
 
         while (curr < input.length()) {
@@ -34,6 +35,7 @@ public class RLexer {
                             throw new RParseException(cPos, "Incomplete group structure.");
                         }
                     } else {
+                        numGroups += 1;
                         tokens.add(new RToken(RTokenType.LPAREN, '(', cPos));
                     }
                     break;
@@ -94,6 +96,17 @@ public class RLexer {
 
                     char escape = input.charAt(curr);
                     curr++;
+
+                    if (escape >= '1' && escape <= '9') {
+                        int val = escape - '0';
+                        if (val > numGroups) {
+                            throw new RParseException(cPos,
+                                    "This token references a non-existent or invalid subpattern");
+                        }
+
+                        tokens.add(new RToken(RTokenType.BACKREF, escape, cPos));
+                        break;
+                    }
 
                     switch (escape) {
                         // Standard escapes

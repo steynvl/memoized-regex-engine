@@ -216,6 +216,9 @@ public class RParser {
         } else if (lookahead(0, RTokenType.MATCH_ANY)) {
             consume(RTokenType.MATCH_ANY);
             return RAst.any();
+        } else if (lookahead(0, RTokenType.BACKREF)) {
+            consume(RTokenType.BACKREF);
+            return RAst.backreference(currToken().c);
         } else if (lookahead(0, RTokenType.POS_LOOKAHEAD)) {
             consume(RTokenType.POS_LOOKAHEAD);
             RAst tmp = RAst.posLookahead(Gregex());
