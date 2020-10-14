@@ -1,18 +1,22 @@
 package pl.marcinchwedczuk.reng;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @SuppressWarnings("SimplifiableConditionalExpression")
 public class BacktrackingMatcher {
     public static Match match(String s, RAst regex) {
         Input input = Input.of(s);
+        // maps capture group to matched text
+        Map<Integer, String> groups = new HashMap<>();
 
         while (true) {
             int startIndex = input.currentPos();
             AtomicInteger endIndex = new AtomicInteger(0);
 
-            boolean hasMatch = match(input, regex, () -> {
+            boolean hasMatch = match(input, regex, groups, () -> {
                 endIndex.set(input.currentPos());
                 return true;
             });
@@ -30,7 +34,8 @@ public class BacktrackingMatcher {
     }
 
     @SuppressWarnings("SimplifiableConditionalExpression")
-    public static boolean match(Input input, RAst ast, Cont cont) {
+    public static boolean match(Input input, RAst ast,
+                                Map<Integer, String> groups, Cont cont) {
         RAstType type = ast.type;
         InputPositionMarker m;
 
@@ -74,11 +79,17 @@ public class BacktrackingMatcher {
 
 
             case CAPTURE_GROUP:
-                return match(input, ast.headExpr(), cont);
+                m = input.markPosition();
+                return match(input, ast.headExpr(), groups, () -> {
+                    groups.put(ast.captureGroup, input.range(m.pos, input.currentPos()));
+                    return cont.run();
+                });
+            case BACKREF:
+                return true;
 
             case POS_LOOKAHEAD:
                 m = input.markPosition();
-                if (!match(input, ast.headExpr(), cont))
+                if (!match(input, ast.headExpr(), groups, cont))
                     return false;
 
                 input.restorePosition(m);
@@ -86,20 +97,20 @@ public class BacktrackingMatcher {
 
             case NEG_LOOKAHEAD:
                 m = input.markPosition();
-                if (match(input, ast.headExpr(), cont))
+                if (match(input, ast.headExpr(), groups, cont))
                     return false;
 
                 input.restorePosition(m);
                 return cont.run();
 
             case CONCAT:
-                return concatRec(input, ast.exprs, 0, cont);
+                return concatRec(input, ast.exprs, 0, groups, cont);
 
             case ALTERNATIVE:
-                return alternativeRec(input, ast.exprs, 0, cont);
+                return alternativeRec(input, ast.exprs, 0, groups, cont);
 
             case REPEAT:
-                return repeatRec(input, ast, 0, cont);
+                return repeatRec(input, ast, 0, groups, cont);
 
             default: throw new AssertionError("Unknown enum value: " + type);
         }
@@ -108,27 +119,29 @@ public class BacktrackingMatcher {
     private static boolean concatRec(Input input,
                                      List<RAst> exprs,
                                      int currExpr,
+                                     Map<Integer, String> groups,
                                      Cont cont) {
         if (currExpr == exprs.size()) {
             return cont.run();
         }
 
         // Match exprs.get(currExpr)
-        return match(input, exprs.get(currExpr), () ->
+        return match(input, exprs.get(currExpr), groups, () ->
             // If it succeeded then match next expression
-            concatRec(input, exprs, currExpr + 1, cont)
+            concatRec(input, exprs, currExpr + 1, groups, cont)
         );
     }
 
     private static boolean repeatRec(Input input,
                                      RAst repeatAst,
                                      long matchCount,
+                                     Map<Integer, String> groups,
                                      Cont cont) {
         if (matchCount > repeatAst.repeatMax)
             return false;
 
-        boolean matched = match(input, repeatAst.headExpr(), () ->
-            repeatRec(input, repeatAst, matchCount+1, cont)
+        boolean matched = match(input, repeatAst.headExpr(), groups, () ->
+            repeatRec(input, repeatAst, matchCount+1, groups, cont)
         );
 
         if (!matched && (matchCount >= repeatAst.repeatMin)) {
@@ -145,16 +158,17 @@ public class BacktrackingMatcher {
     private static boolean alternativeRec(Input input,
                                           List<RAst> expr,
                                           int currExpr,
+                                          Map<Integer, String> groups,
                                           Cont cont) {
         if (currExpr == expr.size()) {
             // We tried all alternatives but achieved no match.
             return false;
         }
 
-        boolean matched = match(input, expr.get(currExpr), cont);
+        boolean matched = match(input, expr.get(currExpr), groups, cont);
         if (matched) return true;
 
         // Let's try next alternative "branch"
-        return alternativeRec(input, expr, currExpr+1, cont);
+        return alternativeRec(input, expr, currExpr+1, groups, cont);
     }
 }

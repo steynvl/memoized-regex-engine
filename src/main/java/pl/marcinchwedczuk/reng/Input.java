@@ -31,6 +31,11 @@ public class Input {
         pos += nchars;
     }
 
+    public String range(int from, int to) {
+        assert from < to;
+        return input.substring(from, to);
+    }
+
     public char current() {
         return input.charAt(pos);
     }

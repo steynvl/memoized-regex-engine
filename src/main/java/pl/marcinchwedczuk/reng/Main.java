@@ -24,7 +24,7 @@ public class Main {
         while ((line = con.readLine("INPUT? ")) != null) {
             Match m = BacktrackingMatcher.match(line, regex);
             if (m.hasMatch) {
-                con.printf("MATCH %s at position %d%n", m.matched(), m.start);
+                con.printf("MATCH %s at position (%d, %d)%n", m.matched(), m.start, m.end);
             }
             else {
                 con.printf("NO MATCH FOUND%n");
