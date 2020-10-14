@@ -72,6 +72,10 @@ public class BacktrackingMatcher {
                 }
                 return false;
 
+
+            case CAPTURE_GROUP:
+                return match(input, ast.headExpr(), cont);
+
             case POS_LOOKAHEAD:
                 m = input.markPosition();
                 if (!match(input, ast.headExpr(), cont))

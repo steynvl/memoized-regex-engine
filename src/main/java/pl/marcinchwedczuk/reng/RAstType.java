@@ -20,13 +20,15 @@ public enum RAstType {
     // Regex: R*
     REPEAT(80),
 
+    // Capturing group (regex), needed to support backreferences
+    CAPTURE_GROUP(75),
+
     // Match list of regexes one by one.
     // Regex: R_1 R_2 R_3
     CONCAT(70),
 
     // Positive Lookahead
     POS_LOOKAHEAD(60),
-
 
     // Negative Lookahead
     NEG_LOOKAHEAD(50),

@@ -231,7 +231,7 @@ public class RParser {
             return tmp;
         } else if (lookahead(0, RTokenType.LPAREN)) {
             consume(RTokenType.LPAREN);
-            RAst tmp = Gregex();
+            RAst tmp = RAst.captureGroup(Gregex(), currToken().c - '0');
             consume(RTokenType.RPAREN);
             return tmp;
         } else {

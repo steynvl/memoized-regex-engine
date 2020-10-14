@@ -16,16 +16,21 @@ public class RAst {
     public final long repeatMin;
     public final long repeatMax;
 
+    // used by backreferences
+    public final int captureGroup;
+
     public RAst(RAstType type,
                 Set<Character> chars,
                 List<RAst> exprs,
                 long repeatMin,
-                long repeatMax) {
+                long repeatMax,
+                int captureGroup) {
         this.type = type;
         this.chars = chars;
         this.exprs = exprs;
         this.repeatMin = repeatMin;
         this.repeatMax = repeatMax;
+        this.captureGroup = captureGroup;
     }
 
     public RAst(RAstType type,
@@ -33,7 +38,7 @@ public class RAst {
         this(type,
              chars,
              Collections.emptyList(),
-             -1, -1);
+             -1, -1, -1);
     }
 
     public RAst(RAstType type,
@@ -41,7 +46,14 @@ public class RAst {
         this(type,
              Collections.emptySet(),
              exprs,
-             -1, -1);
+             -1, -1, -1);
+    }
+
+    public RAst(RAstType type, List<RAst> exprs, int captureGroup) {
+        this(type,
+             Collections.emptySet(),
+             exprs,
+            -1, -1, captureGroup);
     }
 
     public RAst headExpr() {
@@ -54,7 +66,7 @@ public class RAst {
     }
 
     private String toString(int outsidePriority) {
-        String tmp = null;
+        String tmp;
 
         switch (type) {
             case GROUP:
@@ -84,6 +96,13 @@ public class RAst {
                 }
                 break;
 
+            case CAPTURE_GROUP:
+                String reg = exprs.stream()
+                        .map(e -> e.toString(RAstType.CAPTURE_GROUP.priority))
+                        .collect(joining());
+
+                tmp = addParentheses(reg);
+                break;
             case REPEAT:
                 tmp = toStringRepeat();
                 break;
@@ -193,12 +212,16 @@ public class RAst {
         return new RAst(RAstType.NEG_LOOKAHEAD, singletonList(expr));
     }
 
+    public static RAst captureGroup(RAst expr, int captureGroup) {
+        return new RAst(RAstType.CAPTURE_GROUP, singletonList(expr), captureGroup);
+    }
+
     public static RAst repeat(RAst expr, long min, long max) {
         return new RAst(
                 RAstType.REPEAT,
                 emptySet(),
                 singletonList(expr),
-                min, max);
+                min, max, -1);
     }
 
     public static RAst atBeginning() {
@@ -206,7 +229,7 @@ public class RAst {
                 RAstType.AT_BEGINNING,
                 emptySet(),
                 emptyList(),
-                -1, -1);
+                -1, -1, -1);
     }
 
     public static RAst atEnd() {
@@ -214,7 +237,7 @@ public class RAst {
                 RAstType.AT_END,
                 emptySet(),
                 emptyList(),
-                -1, -1);
+                -1, -1, -1);
     }
 
     /** Adds ^ and $ anchors to the regex r.

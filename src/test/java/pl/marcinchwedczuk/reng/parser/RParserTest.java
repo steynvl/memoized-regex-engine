@@ -1,6 +1,5 @@
 package pl.marcinchwedczuk.reng.parser;
 
-import org.junit.Assert;
 import org.junit.Test;
 import pl.marcinchwedczuk.reng.RAst;
 
@@ -55,7 +54,7 @@ public class RParserTest {
 
     @Test public void parse_parentheses() {
         RAst ast = RParser.parse("(((a)))");
-        assertEquals("a", ast.toString());
+        assertEquals("(((a)))", ast.toString());
     }
 
     @Test public void parse_concat() {
