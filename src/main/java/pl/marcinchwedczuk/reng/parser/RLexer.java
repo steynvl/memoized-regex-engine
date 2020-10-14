@@ -29,7 +29,7 @@ public class RLexer {
                         if (next == '=') {
                             tokens.add(new RToken(RTokenType.POS_LOOKAHEAD, '=', cPos));
                         } else if (next == '!') {
-                            tokens.add(new RToken(RTokenType.POS_LOOKAHEAD, '!', cPos));
+                            tokens.add(new RToken(RTokenType.NEG_LOOKAHEAD, '!', cPos));
                         } else {
                             throw new RParseException(cPos, "Incomplete group structure.");
                         }

@@ -32,7 +32,7 @@ public class BacktrackingMatcher {
     @SuppressWarnings("SimplifiableConditionalExpression")
     public static boolean match(Input input, RAst ast, Cont cont) {
         RAstType type = ast.type;
-        InputPositionMarker m = null;
+        InputPositionMarker m;
 
         switch (type) {
             case AT_BEGINNING:
@@ -71,6 +71,22 @@ public class BacktrackingMatcher {
                     }
                 }
                 return false;
+
+            case POS_LOOKAHEAD:
+                m = input.markPosition();
+                if (!match(input, ast.headExpr(), cont))
+                    return false;
+
+                input.restorePosition(m);
+                return cont.run();
+
+            case NEG_LOOKAHEAD:
+                m = input.markPosition();
+                if (match(input, ast.headExpr(), cont))
+                    return false;
+
+                input.restorePosition(m);
+                return cont.run();
 
             case CONCAT:
                 return concatRec(input, ast.exprs, 0, cont);

@@ -222,7 +222,7 @@ public class RParser {
             consume(RTokenType.RPAREN);
             return tmp;
         } else if (lookahead(0, RTokenType.NEG_LOOKAHEAD)) {
-            consume(RTokenType.POS_LOOKAHEAD);
+            consume(RTokenType.NEG_LOOKAHEAD);
             RAst tmp = RAst.negLookahead(Gregex());
             consume(RTokenType.RPAREN);
             return tmp;
