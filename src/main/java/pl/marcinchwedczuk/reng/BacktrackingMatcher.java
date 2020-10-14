@@ -22,11 +22,11 @@ public class BacktrackingMatcher {
             });
 
             if (hasMatch) {
-                return new Match(s, hasMatch, startIndex, endIndex.get());
+                return new Match(s, true, startIndex, endIndex.get());
             }
 
             // We are at the end of the input - no match
-            if (input.atEnd()) return new Match(s, hasMatch, -1, -1);
+            if (input.atEnd()) return new Match(s, false, -1, -1);
 
             // Try to match from next index
             input.advance(1);
@@ -85,7 +85,7 @@ public class BacktrackingMatcher {
                     return cont.run();
                 });
             case BACKREF:
-                return true;
+                return backreferenceRec(input, ast, groups, cont);
 
             case POS_LOOKAHEAD:
                 m = input.markPosition();
@@ -114,6 +114,23 @@ public class BacktrackingMatcher {
 
             default: throw new AssertionError("Unknown enum value: " + type);
         }
+    }
+
+    private static boolean backreferenceRec(Input input,
+                                            RAst ast,
+                                            Map<Integer, String> groups,
+                                            Cont cont) {
+        assert ast.exprs.size() == 0;
+        assert ast.captureGroup >= 1 && ast.captureGroup <= 9;
+
+        String text = groups.get(ast.captureGroup);
+        for (int i = 0; i < text.length(); i++) {
+            if (input.atEnd()) return false;
+            if (input.current() != text.charAt(i)) return false;
+            input.advance(1);
+        }
+
+        return cont.run();
     }
 
     private static boolean concatRec(Input input,

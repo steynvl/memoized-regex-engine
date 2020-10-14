@@ -35,8 +35,8 @@ public class RLexer {
                             throw new RParseException(cPos, "Incomplete group structure.");
                         }
                     } else {
-                        numGroups += 1;
                         tokens.add(new RToken(RTokenType.LPAREN, '(', cPos));
+                        numGroups++;
                     }
                     break;
 
@@ -98,8 +98,7 @@ public class RLexer {
                     curr++;
 
                     if (escape >= '1' && escape <= '9') {
-                        int val = escape - '0';
-                        if (val > numGroups) {
+                        if ((escape - '0') > numGroups) {
                             throw new RParseException(cPos,
                                     "This token references a non-existent or invalid subpattern");
                         }

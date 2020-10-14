@@ -9,11 +9,13 @@ public class RParser {
     public static RAst parse(String s) {
         List<RToken> tokens = new RLexer(s).split();
         RParser parser = new RParser(tokens);
+        parser.captureGroup = 1;
         return parser.parse();
     }
 
     private final List<RToken> tokens;
     private int curr;
+    private int captureGroup;
 
     private RToken currToken() {
         return tokens.get(curr);
@@ -217,8 +219,9 @@ public class RParser {
             consume(RTokenType.MATCH_ANY);
             return RAst.any();
         } else if (lookahead(0, RTokenType.BACKREF)) {
+            char group = currToken().c;
             consume(RTokenType.BACKREF);
-            return RAst.backreference(currToken().c);
+            return RAst.backreference(group);
         } else if (lookahead(0, RTokenType.POS_LOOKAHEAD)) {
             consume(RTokenType.POS_LOOKAHEAD);
             RAst tmp = RAst.posLookahead(Gregex());
@@ -231,7 +234,7 @@ public class RParser {
             return tmp;
         } else if (lookahead(0, RTokenType.LPAREN)) {
             consume(RTokenType.LPAREN);
-            RAst tmp = RAst.captureGroup(Gregex(), currToken().c - '0');
+            RAst tmp = RAst.captureGroup(Gregex(), captureGroup++);
             consume(RTokenType.RPAREN);
             return tmp;
         } else {

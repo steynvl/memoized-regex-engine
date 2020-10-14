@@ -199,9 +199,7 @@ public class RAst {
     }
 
     public static RAst backreference(char group) {
-        Set<Character> c = new HashSet<>();
-        c.add(group);
-        return new RAst(RAstType.BACKREF, c);
+        return new RAst(RAstType.BACKREF, Collections.emptyList(), group - '0');
     }
 
     public static RAst posLookahead(RAst expr) {
