@@ -22,7 +22,20 @@ public class RLexer {
 
             switch (c) {
                 case '(':
-                    tokens.add(new RToken(RTokenType.LPAREN, '(', cPos));
+                    char next = input.charAt(curr);
+                    if (next == '?') {
+                        curr++;
+                        next = input.charAt(curr++);
+                        if (next == '=') {
+                            tokens.add(new RToken(RTokenType.POS_LOOKAHEAD, '=', cPos));
+                        } else if (next == '!') {
+                            tokens.add(new RToken(RTokenType.POS_LOOKAHEAD, '!', cPos));
+                        } else {
+                            throw new RParseException(cPos, "Incomplete group structure.");
+                        }
+                    } else {
+                        tokens.add(new RToken(RTokenType.LPAREN, '(', cPos));
+                    }
                     break;
 
                 case ')':

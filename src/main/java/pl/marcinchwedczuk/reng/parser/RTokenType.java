@@ -9,6 +9,13 @@ public enum RTokenType {
     LGROUP,
     RGROUP,
 
+    // Positive and Negative lookaheads e.g. a(?=b) a(?!b)
+    POS_LOOKAHEAD,
+    NEG_LOOKAHEAD,
+
+    // Backreferences e.g. (\d+)\1
+    BACKREF,
+
     // Ranges e.g. {1,2}
     LRANGE,
     RRANGE,

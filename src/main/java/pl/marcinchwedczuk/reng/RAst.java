@@ -179,6 +179,14 @@ public class RAst {
         return repeat(expr, 1, UNBOUND);
     }
 
+    public static RAst posLookahead(RAst expr) {
+        return new RAst(RAstType.POS_LOOKAHEAD, singletonList(expr));
+    }
+
+    public static RAst negLookahead(RAst expr) {
+        return new RAst(RAstType.NEG_LOOKAHEAD, singletonList(expr));
+    }
+
     public static RAst repeat(RAst expr, long min, long max) {
         return new RAst(
                 RAstType.REPEAT,

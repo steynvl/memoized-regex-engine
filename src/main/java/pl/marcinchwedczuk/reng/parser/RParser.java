@@ -216,6 +216,16 @@ public class RParser {
         } else if (lookahead(0, RTokenType.MATCH_ANY)) {
             consume(RTokenType.MATCH_ANY);
             return RAst.any();
+        } else if (lookahead(0, RTokenType.POS_LOOKAHEAD)) {
+            consume(RTokenType.POS_LOOKAHEAD);
+            RAst tmp = RAst.posLookahead(Gregex());
+            consume(RTokenType.RPAREN);
+            return tmp;
+        } else if (lookahead(0, RTokenType.NEG_LOOKAHEAD)) {
+            consume(RTokenType.POS_LOOKAHEAD);
+            RAst tmp = RAst.negLookahead(Gregex());
+            consume(RTokenType.RPAREN);
+            return tmp;
         } else if (lookahead(0, RTokenType.LPAREN)) {
             consume(RTokenType.LPAREN);
             RAst tmp = Gregex();

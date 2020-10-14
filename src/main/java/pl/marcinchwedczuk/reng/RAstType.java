@@ -24,6 +24,16 @@ public enum RAstType {
     // Regex: R_1 R_2 R_3
     CONCAT(70),
 
+    // Positive Lookahead
+    POS_LOOKAHEAD(60),
+
+
+    // Negative Lookahead
+    NEG_LOOKAHEAD(50),
+
+    // Backreference,
+    BACKREF(40),
+
     // Match any of expressions
     // Regex: R_1 | R_2 | R_3
     ALTERNATIVE(20);
