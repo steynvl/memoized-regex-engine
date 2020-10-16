@@ -7,10 +7,19 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @SuppressWarnings("SimplifiableConditionalExpression")
 public class BacktrackingMatcher {
+
+    public static boolean[][] memoTable;
+
     public static Match match(String s, RAst regex) {
         Input input = Input.of(s);
+
         // maps capture group to matched text
         Map<Integer, String> groups = new HashMap<>();
+
+        // memoisation table
+        int rowSize = regex.id+1 > 0 ? regex.id+1 : 1;
+        int colSize = s.length() > 0 ? s.length()+1 : 1;
+        memoTable = new boolean[rowSize][colSize];
 
         while (true) {
             int startIndex = input.currentPos();
@@ -39,6 +48,11 @@ public class BacktrackingMatcher {
         RAstType type = ast.type;
         InputPositionMarker m;
 
+        if (memoTable[ast.id][input.currentPos()]) {
+            return false;
+        }
+        memoTable[ast.id][input.currentPos()] = true;
+
         switch (type) {
             case AT_BEGINNING:
                 return input.atBeginning()
@@ -52,6 +66,7 @@ public class BacktrackingMatcher {
 
             case GROUP:
                 if (input.atEnd()) return false;
+
                 if (ast.chars.contains(input.current())) {
                     m = input.markPosition();
                     input.advance(1);

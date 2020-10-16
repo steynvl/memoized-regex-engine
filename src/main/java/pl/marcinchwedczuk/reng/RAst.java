@@ -7,6 +7,7 @@ import static java.util.stream.Collectors.joining;
 
 public class RAst {
     public static final Long UNBOUND = Long.MAX_VALUE;
+    public static int idCounter = 0;
 
     public final RAstType type;
     public final Set<Character> chars;
@@ -18,6 +19,9 @@ public class RAst {
 
     // used by backreferences
     public final int captureGroup;
+
+    // unique identifier, used by memoisation function
+    public final int id;
 
     public RAst(RAstType type,
                 Set<Character> chars,
@@ -31,6 +35,7 @@ public class RAst {
         this.repeatMin = repeatMin;
         this.repeatMax = repeatMax;
         this.captureGroup = captureGroup;
+        this.id = idCounter++;
     }
 
     public RAst(RAstType type,
@@ -53,7 +58,7 @@ public class RAst {
         this(type,
              Collections.emptySet(),
              exprs,
-            -1, -1, captureGroup);
+             -1, -1, captureGroup);
     }
 
     public RAst headExpr() {

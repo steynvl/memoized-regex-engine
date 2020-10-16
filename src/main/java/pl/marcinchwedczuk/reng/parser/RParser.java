@@ -7,6 +7,7 @@ import java.util.List;
 
 public class RParser {
     public static RAst parse(String s) {
+        RAst.idCounter = 0;
         List<RToken> tokens = new RLexer(s).split();
         RParser parser = new RParser(tokens);
         parser.captureGroup = 1;

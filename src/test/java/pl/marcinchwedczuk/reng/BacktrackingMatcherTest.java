@@ -1,13 +1,22 @@
 package pl.marcinchwedczuk.reng;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
+
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class BacktrackingMatcherTest {
-    @Test public void matches_group() {
+
+    @Before
+    public void setup() {
+        RAst.idCounter = 0;
+    }
+
+    @Test
+    public void matches_group() {
         RAst rAbc = RAst.group('a', 'b', 'c');
 
         assertMatches("a", rAbc);
@@ -19,7 +28,8 @@ public class BacktrackingMatcherTest {
         assertNotMatches("d", rAbc);
     }
 
-    @Test public void matches_inverted_group() {
+    @Test
+    public void matches_inverted_group() {
         RAst rNotAbc = RAst.invGroup('a', 'b', 'c');
 
         assertMatches("d", rNotAbc);
@@ -32,7 +42,8 @@ public class BacktrackingMatcherTest {
         assertNotMatches("abc", rNotAbc);
     }
 
-    @Test public void matches_at_beginning() {
+    @Test
+    public void matches_at_beginning() {
        RAst rAtBeginning = RAst.atBeginning();
 
        // Every string has a beginning
@@ -41,7 +52,8 @@ public class BacktrackingMatcherTest {
         assertMatches("abc", rAtBeginning);
     }
 
-    @Test public void matches_at_end() {
+    @Test
+    public void matches_at_end() {
         RAst rAtEnd = RAst.atEnd();
 
         // Every string has an ending
@@ -50,7 +62,8 @@ public class BacktrackingMatcherTest {
         assertMatches("abc", rAtEnd);
     }
 
-    @Test public void matches_concat() {
+    @Test
+    public void matches_concat() {
         RAst rAbc = RAst.concat(
                 RAst.group('a'),
                 RAst.group('b'),
@@ -70,7 +83,8 @@ public class BacktrackingMatcherTest {
         assertNotMatches("xxxxxxx", rAbc);
     }
 
-    @Test public void matches_alternative() {
+    @Test
+    public void matches_alternative() {
         RAst rAltAbc = RAst.alternative(
                 RAst.group('a'),
                 RAst.group('b'),
@@ -88,7 +102,8 @@ public class BacktrackingMatcherTest {
         assertNotMatches("xyz", rAltAbc);
     }
 
-    @Test public void matches_star() {
+    @Test
+    public void matches_star() {
         RAst rAStar = RAst.star(RAst.group('a'));
 
         assertMatches("", rAStar);
@@ -102,7 +117,8 @@ public class BacktrackingMatcherTest {
         assertMatches("xyz", rAStar);
     }
 
-    @Test public void matches_plus() {
+    @Test
+    public void matches_plus() {
         RAst rAStar = RAst.plus(RAst.group('a'));
 
         assertMatches("a", rAStar);
@@ -115,7 +131,8 @@ public class BacktrackingMatcherTest {
         assertNotMatches("xyz", rAStar);
     }
 
-    @Test public void matches_repetition() {
+    @Test
+    public void matches_repetition() {
         RAst rA23 = RAst.repeat(RAst.group('a'), 2, 3);
 
         assertNotMatches("", rA23);
@@ -127,7 +144,8 @@ public class BacktrackingMatcherTest {
         assertMatches("aaaa", rA23);
     }
 
-    @Test public void matches_anchors() {
+    @Test
+    public void matches_anchors() {
         // regex: ^abc$
         RAst rAbcAlone = RAst.concat(
                 RAst.atBeginning(),
@@ -160,7 +178,8 @@ public class BacktrackingMatcherTest {
         assertNotMatches("AxA", rABs);
     }
 
-    @Test public void match_star_with_concatenation() {
+    @Test
+    public void match_star_with_concatenation() {
         // Regex: ^(foo)*$
         RAst rFooStar = RAst.fullMatch(
                 RAst.star(RAst.literal("foo")));
@@ -173,7 +192,8 @@ public class BacktrackingMatcherTest {
         assertNotMatches("foofox", rFooStar);
     }
 
-    @Test public void match_alternative_with_concatenation() {
+    @Test
+    public void match_alternative_with_concatenation() {
         // Regex: ^a(foo|bar)z$
         RAst rFooStar = RAst.fullMatch(
                 RAst.concat(
@@ -192,7 +212,8 @@ public class BacktrackingMatcherTest {
         assertNotMatches("afoobarz", rFooStar);
     }
 
-    @Test public void match_repeat_with_min_and_max() {
+    @Test
+    public void match_repeat_with_min_and_max() {
         // regex: ^a{1,3}$
         RAst r = RAst.fullMatch(
                 RAst.repeat(RAst.group('a'), 1, 3));
@@ -206,7 +227,8 @@ public class BacktrackingMatcherTest {
         assertNotMatches("aaaaaa", r);
     }
 
-    @Test public void repeat_does_gready_match() {
+    @Test
+    public void repeat_does_gready_match() {
         String input = "aaaaab";
         RAst r = RAst.repeat(RAst.group('a'), 1, 5);
 
