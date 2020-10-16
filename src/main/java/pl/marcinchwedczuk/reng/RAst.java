@@ -13,15 +13,19 @@ public class RAst {
     public final Set<Character> chars;
     public final List<RAst> exprs;
 
-    // Repeat from to, both inclusive
+    /* repeat from to, both inclusive */
     public final long repeatMin;
     public final long repeatMax;
 
-    // used by backreferences
+    /* used by backreferences */
     public final int captureGroup;
 
-    // unique identifier, used by memoisation function
+    /* unique identifier, used by memoisation function */
     public final int id;
+
+    /* in degree of state */
+    private int inDegree = 0;
+    private boolean isAncestorNode = false;
 
     public RAst(RAstType type,
                 Set<Character> chars,
@@ -63,6 +67,22 @@ public class RAst {
 
     public RAst headExpr() {
         return exprs.iterator().next();
+    }
+
+    public int getInDegree() {
+        return inDegree;
+    }
+
+    public void setInDegree(int val) {
+        this.inDegree = val;
+    }
+
+    public boolean getIsAncestorNode() {
+        return isAncestorNode;
+    }
+
+    public void setIsAncestorNode(boolean val) {
+        this.isAncestorNode = val;
     }
 
     @Override

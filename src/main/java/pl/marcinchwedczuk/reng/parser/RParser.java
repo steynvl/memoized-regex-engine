@@ -16,6 +16,8 @@ public class RParser {
 
     private final List<RToken> tokens;
     private int curr;
+
+    /* how many capture groups have we encountered? */
     private int captureGroup;
 
     private RToken currToken() {
@@ -107,7 +109,6 @@ public class RParser {
             consume(RTokenType.ALTERNATIVE);
             alternatives.add(Gconcatenation());
         }
-
         return alternatives.size() == 1
                 ? alternatives.get(0)
                 : RAst.alternative(alternatives.toArray(new RAst[0]));

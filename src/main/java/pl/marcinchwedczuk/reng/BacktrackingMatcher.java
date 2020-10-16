@@ -11,10 +11,22 @@ public class BacktrackingMatcher {
     public static boolean[][] memoTable;
 
     public static Match match(String s, RAst regex) {
+        return match(s, regex, MemoisationPolicy.ALL, MemoisationEncodingScheme.BIT_MAP);
+    }
+
+    public static Match match(String s, RAst regex,
+                              MemoisationPolicy memPolicy,
+                              MemoisationEncodingScheme memEncScheme) {
         Input input = Input.of(s);
 
-        // maps capture group to matched text
+        /* maps capture group to matched text */
         Map<Integer, String> groups = new HashMap<>();
+
+        List<Integer> nodesToMemoise = MemoisationPolicyHelper.determineNodesToMemoise(regex, memPolicy);
+        System.out.println(nodesToMemoise.size() + " <<< size");
+        /* get nodes */
+
+        /* initialise the memoisation table */
 
         // memoisation table
         int rowSize = regex.id+1 > 0 ? regex.id+1 : 1;
