@@ -24,6 +24,40 @@ public class MemoisationPolicyHelper {
         }
     }
 
+    private static List<Integer> findNodesWithInDegree(RAst ast, Function<Integer, Boolean> validInDegree) {
+        List<Integer> nodes = new ArrayList<>();
+
+        if (validInDegree.apply(ast.getInDegree()))
+            nodes.add(ast.id);
+
+        for (RAst child : ast.exprs)
+            findNodesWithInDegree(child, validInDegree);
+
+        return nodes;
+    }
+
+    private static List<Integer> findAncestorNodes(RAst ast) {
+        List<Integer> nodes = new ArrayList<>();
+
+        if (ast.getIsAncestorNode())
+            nodes.add(ast.id);
+
+        for (RAst child : ast.exprs)
+            findAncestorNodes(child);
+
+        return nodes;
+    }
+
+    private static List<Integer> findAllNodes(RAst ast) {
+        List<Integer> nodes = new ArrayList<>();
+        nodes.add(ast.id);
+
+        for (RAst child : ast.exprs) {
+            nodes.addAll(findAllNodes(child));
+        }
+        return nodes;
+    }
+
     private static void calculateInDegreeAndAncestorNodes(RAst node) {
         calculateInDegreeAndAncestorNodes(node, new Stack<>());
     }
@@ -57,29 +91,6 @@ public class MemoisationPolicyHelper {
 
         for (RAst child : node.exprs)
             calculateInDegreeAndAncestorNodes(child, alternations);
-    }
-
-
-    private static List<Integer> findNodesWithInDegree(RAst ast, Function<Integer, Boolean> validInDegree) {
-        List<Integer> nodes = new ArrayList<>();
-
-        if (validInDegree.apply(ast.getInDegree()))
-            nodes.add(ast.id);
-
-        for (RAst child : ast.exprs)
-            findNodesWithInDegree(child, validInDegree);
-
-        return nodes;
-    }
-
-    private static List<Integer> findAllNodes(RAst ast) {
-        List<Integer> nodes = new ArrayList<>();
-        nodes.add(ast.id);
-
-        for (RAst child : ast.exprs) {
-            nodes.addAll(findAllNodes(child));
-        }
-        return nodes;
     }
 
 }
