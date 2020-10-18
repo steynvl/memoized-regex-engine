@@ -3,11 +3,11 @@ package pl.marcinchwedczuk.reng;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
+import java.util.function.Function;
 
 public class MemoisationPolicyHelper {
 
     public static List<Integer> determineNodesToMemoise(RAst ast, MemoisationPolicy memPolicy) {
-
         switch (memPolicy) {
             case NONE:
                 return new ArrayList<>();
@@ -15,7 +15,7 @@ public class MemoisationPolicyHelper {
                 return findAllNodes(ast);
             case IN_DEGREE_GREATER_THAN_1:
                 calculateInDegreeAndAncestorNodes(ast);
-                return new ArrayList<>();
+                return findNodesWithInDegree(ast, inDeg -> inDeg > 1);
             case ANCESTOR_NODES:
                 calculateInDegreeAndAncestorNodes(ast);
                 return new ArrayList<>();
@@ -29,6 +29,9 @@ public class MemoisationPolicyHelper {
     }
 
     private static void calculateInDegreeAndAncestorNodes(RAst node, Stack<Integer> alternations) {
+        if (node.type == RAstType.REPEAT)
+            node.setIsAncestorNode(true);
+
         if (node.type == RAstType.CONCAT) {
             for (int i = 0; i < node.exprs.size(); i++) {
                 RAst child = node.exprs.get(i);
@@ -39,28 +42,44 @@ public class MemoisationPolicyHelper {
                         RAst n = node.exprs.get(i + 1);
                         n.setInDegree(n.getInDegree() + alternations.pop());
                     } else {
+                        /* this branch should only execute if the alternation was the
+                         * final subexpression in the regex */
                         alternations.pop();
                     }
                 }
             }
             return;
-        } else if (node.type == RAstType.ALTERNATIVE) {
-            alternations.push(node.exprs.size());
         }
 
-        for (RAst child : node.exprs) {
+        if (node.type == RAstType.ALTERNATIVE)
+            alternations.push(node.exprs.size());
+
+
+        for (RAst child : node.exprs)
             calculateInDegreeAndAncestorNodes(child, alternations);
-        }
+    }
+
+
+    private static List<Integer> findNodesWithInDegree(RAst ast, Function<Integer, Boolean> validInDegree) {
+        List<Integer> nodes = new ArrayList<>();
+
+        if (validInDegree.apply(ast.getInDegree()))
+            nodes.add(ast.id);
+
+        for (RAst child : ast.exprs)
+            findNodesWithInDegree(child, validInDegree);
+
+        return nodes;
     }
 
     private static List<Integer> findAllNodes(RAst ast) {
-        List<Integer> ids = new ArrayList<>();
-        ids.add(ast.id);
-        System.out.println(ast.type + " [" + ast.id + "]" + "[in=" + ast.getInDegree() + "]");
+        List<Integer> nodes = new ArrayList<>();
+        nodes.add(ast.id);
+
         for (RAst child : ast.exprs) {
-            ids.addAll(findAllNodes(child));
+            nodes.addAll(findAllNodes(child));
         }
-        return ids;
+        return nodes;
     }
 
 }
