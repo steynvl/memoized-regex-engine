@@ -12,6 +12,10 @@ public class Input {
         pos = 0;
     }
 
+    public int length() {
+        return input.length();
+    }
+
     public int currentPos() {
         return pos;
     }

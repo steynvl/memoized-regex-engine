@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @SuppressWarnings("SimplifiableConditionalExpression")
 public class BacktrackingMatcher {
 
-    public static boolean[][] memoTable;
+    private static MemoisationTable memoTable;
 
     public static Match match(String s, RAst regex) {
         return match(s, regex, MemoisationPolicy.ALL, MemoisationEncodingScheme.BIT_MAP);
@@ -22,16 +22,23 @@ public class BacktrackingMatcher {
         /* maps capture group to matched text */
         Map<Integer, String> groups = new HashMap<>();
 
-        List<Integer> nodesToMemoise = MemoisationPolicyHelper.determineNodesToMemoise(regex, memPolicy);
-        System.out.println(nodesToMemoise.size() + " <<< size");
-        /* get nodes */
+        /* get node ids which should be memoised */
+        List<Integer> nodesToMem = MemoisationPolicyHelper.determineNodesToMemoise(regex, memPolicy);
 
         /* initialise the memoisation table */
-
-        // memoisation table
-        int rowSize = regex.id+1 > 0 ? regex.id+1 : 1;
-        int colSize = s.length() > 0 ? s.length()+1 : 1;
-        memoTable = new boolean[rowSize][colSize];
+        switch (memEncScheme) {
+            case BIT_MAP:
+                memoTable = new BitMap(nodesToMem.size(), input.length());
+                break;
+            case HASH_TABLE:
+                memoTable = new HashTable(nodesToMem.size(), input.length());
+                break;
+            case RLE:
+                memoTable = new RunLengthEncoding(nodesToMem.size(), input.length());
+                break;
+            default:
+                throw new RuntimeException("Unknown MemoisationEncodingScheme [" + memEncScheme.name() + "]");
+        }
 
         while (true) {
             int startIndex = input.currentPos();
@@ -60,10 +67,9 @@ public class BacktrackingMatcher {
         RAstType type = ast.type;
         InputPositionMarker m;
 
-        if (memoTable[ast.id][input.currentPos()]) {
+        if (memoTable.get(ast, input.currentPos()))
             return false;
-        }
-        memoTable[ast.id][input.currentPos()] = true;
+        memoTable.mark(ast, input.currentPos());
 
         switch (type) {
             case AT_BEGINNING:

@@ -7,7 +7,10 @@ import java.util.function.Function;
 
 public class MemoisationPolicyHelper {
 
+    private static int counter;
+
     public static List<Integer> determineNodesToMemoise(RAst ast, MemoisationPolicy memPolicy) {
+        counter = 0;
         switch (memPolicy) {
             case NONE:
                 return new ArrayList<>();
@@ -18,7 +21,7 @@ public class MemoisationPolicyHelper {
                 return findNodesWithInDegree(ast, inDeg -> inDeg > 1);
             case ANCESTOR_NODES:
                 calculateInDegreeAndAncestorNodes(ast);
-                return new ArrayList<>();
+                return findAncestorNodes(ast);
             default:
                 throw new RuntimeException("Unknown MemoisationPolicy [" + memPolicy.name() + "]");
         }
@@ -27,6 +30,7 @@ public class MemoisationPolicyHelper {
     private static List<Integer> findNodesWithInDegree(RAst ast, Function<Integer, Boolean> validInDegree) {
         List<Integer> nodes = new ArrayList<>();
 
+        ast.setIndexInBitMap(counter++);
         if (validInDegree.apply(ast.getInDegree()))
             nodes.add(ast.id);
 
@@ -39,6 +43,7 @@ public class MemoisationPolicyHelper {
     private static List<Integer> findAncestorNodes(RAst ast) {
         List<Integer> nodes = new ArrayList<>();
 
+        ast.setIndexInBitMap(counter++);
         if (ast.getIsAncestorNode())
             nodes.add(ast.id);
 
@@ -50,11 +55,12 @@ public class MemoisationPolicyHelper {
 
     private static List<Integer> findAllNodes(RAst ast) {
         List<Integer> nodes = new ArrayList<>();
+        ast.setIndexInBitMap(counter++);
         nodes.add(ast.id);
 
-        for (RAst child : ast.exprs) {
+        for (RAst child : ast.exprs)
             nodes.addAll(findAllNodes(child));
-        }
+
         return nodes;
     }
 

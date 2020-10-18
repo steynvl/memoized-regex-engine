@@ -27,6 +27,9 @@ public class RAst {
     private int inDegree = 0;
     private boolean isAncestorNode = false;
 
+    /* needed by BitMap memoisation table */
+    private int indexInBitMap;
+
     public RAst(RAstType type,
                 Set<Character> chars,
                 List<RAst> exprs,
@@ -73,16 +76,24 @@ public class RAst {
         return inDegree;
     }
 
-    public void setInDegree(int val) {
-        this.inDegree = val;
+    public void setInDegree(int inDegree) {
+        this.inDegree = inDegree;
     }
 
     public boolean getIsAncestorNode() {
         return isAncestorNode;
     }
 
-    public void setIsAncestorNode(boolean val) {
-        this.isAncestorNode = val;
+    public void setIsAncestorNode(boolean isAncestorNode) {
+        this.isAncestorNode = isAncestorNode;
+    }
+
+    public int getIndexInBitMap() {
+        return indexInBitMap;
+    }
+
+    public void setIndexInBitMap(int indexInBitMap) {
+        this.indexInBitMap = indexInBitMap;
     }
 
     @Override
