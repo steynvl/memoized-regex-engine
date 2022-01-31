@@ -12,10 +12,6 @@ public class Input {
         pos = 0;
     }
 
-    public int length() {
-        return input.length();
-    }
-
     public int currentPos() {
         return pos;
     }
@@ -38,6 +34,10 @@ public class Input {
     public String range(int from, int to) {
         assert from < to;
         return input.substring(from, to);
+    }
+
+    public int length() {
+        return input.length();
     }
 
     public char current() {
